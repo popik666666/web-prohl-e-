@@ -3,31 +3,41 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Popik666 Browster Krvavě - Vyhledávače a Open Source Project (V 5.3)</title>
+<title>Shinto Browster - Vyhledávače dle kategorií (V3.1 - Torrents)</title>
 <style>
-  /* === ZÁKLADNÍ NASTAVENÍ === */
   :root {
-    --bg: #000;
-    --panel: #111;
-    --accent: #c41616; /* Krvavě Červená */
-    --text: #eee;
-    --muted: #888;
-    --pulse-color: rgba(196, 22, 22, 0.15); /* Slabý červený puls */
-  }
+    --bg-dark: #000;
+    --panel-dark: #111;
+    --accent-dark: #c41616;
+    --text-dark: #eee;
+    --muted-dark: #888;
 
-  /* === KRVAVÝ PULSUJÍCÍ EFEKT === */
-  @keyframes pulse {
-    0% { box-shadow: 0 0 5px var(--pulse-color); }
-    50% { box-shadow: 0 0 15px var(--pulse-color); }
-    100% { box-shadow: 0 0 5px var(--pulse-color); }
+    --bg-light: #fff;
+    --panel-light: #eee;
+    --accent-light: #c41616;
+    --text-light: #000;
+    --muted-light: #555;
   }
-
   body {
     margin: 0;
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     background: var(--bg);
     color: var(--text);
-    animation: pulse 4s infinite ease-in-out;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  body.dark {
+    --bg: var(--bg-dark);
+    --panel: var(--panel-dark);
+    --accent: var(--accent-dark);
+    --text: var(--text-dark);
+    --muted: var(--muted-dark);
+  }
+  body.light {
+    --bg: var(--bg-light);
+    --panel: var(--panel-light);
+    --accent: var(--accent-light);
+    --text: var(--text-light);
+    --muted: var(--muted-light);
   }
   header {
     background: var(--panel);
@@ -37,15 +47,6 @@
     font-weight: 700;
     color: var(--accent);
     text-shadow: 0 0 12px rgba(196,22,22,0.5);
-    position: relative;
-    border-bottom: 2px solid var(--accent);
-  }
-  #visitCount {
-    font-size: 0.5em;
-    font-weight: 400;
-    color: var(--muted);
-    display: block;
-    margin-top: 5px;
   }
   main {
     max-width: 900px;
@@ -63,10 +64,10 @@
     padding: 0.8em;
     font-size: 1em;
     border-radius: 8px;
-    border: 1px solid var(--muted);
-    background: var(--panel);
-    color: var(--text);
+    border: 1px solid #ccc;
     transition: border-color 0.3s;
+    background-color: var(--panel); 
+    color: var(--text);
   }
   input[type=text]:focus {
     outline: none;
@@ -80,60 +81,30 @@
     padding: 0.8em 1.2em;
     border-radius: 8px;
     cursor: pointer;
-    transition: background 0.3s, transform 0.1s;
-    white-space: nowrap;
-  }
-  button:active {
-    transform: scale(0.98);
+    transition: background 0.3s;
   }
   button:disabled {
     background: #555;
     cursor: not-allowed;
   }
   button.secondary {
-    background: #444;
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--muted);
   }
-
-  /* === ACCORDION A VÝSLEDKOVÉ STYLY === */
+  body.light button.secondary {
+    background: #ccc;
+    color: #000;
+  }
   h2 {
     border-bottom: 2px solid var(--accent);
-    padding: 0.5em 0.3em;
+    padding-bottom: 0.3em;
     margin-top: 2em;
-    color: var(--text);
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: background-color 0.2s;
-  }
-  h2:hover {
-    background-color: var(--panel);
-    border-color: #f00;
-  }
-  h2::after {
-    content: '▼';
-    font-size: 0.8em;
-    transition: transform 0.3s;
-  }
-  h2.collapsed::after {
-    content: '▶';
-    transform: rotate(0deg);
   }
   .engine-list {
     display: grid;
     grid-template-columns: repeat(auto-fill,minmax(280px,1fr));
     gap: 12px;
-    padding-top: 10px;
-    overflow: hidden;
-    max-height: 2000px;
-    transition: max-height 0.5s ease-in-out;
-  }
-  .collapsed + .engine-list {
-    max-height: 0;
-    padding-top: 0;
-  }
-  .section-container {
-    margin-bottom: 0;
   }
   .engine-card {
     background: var(--panel);
@@ -143,14 +114,14 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    text-decoration: none;
-    transition: background 0.3s, transform 0.2s ease, box-shadow 0.3s;
+    transition: background 0.3s;
   }
   .engine-card:hover {
-    background: var(--accent) !important;
-    color: #fff !important;
-    transform: scale(1.05);
-    box-shadow: 0 0 20px rgba(196,22,22,0.8);
+    background: var(--accent);
+    color: #fff;
+  }
+  .engine-card:hover .engine-url {
+    color: #fff;
   }
   .engine-logo {
     width: 48px;
@@ -165,391 +136,383 @@
     align-items: center;
     box-shadow: 0 0 12px rgba(0,0,0,0.4);
   }
-  .engine-info { flex-grow: 1; }
+  .engine-info {
+    flex-grow: 1;
+  }
   .engine-name {
     font-weight: 700;
     font-size: 1.1em;
-    color: inherit;
   }
   .engine-url {
     font-size: 0.85em;
     color: var(--muted);
     word-break: break-all;
   }
-  .engine-card:hover .engine-url {
-    color: #eee !important;
-  }
-
-  /* Nový styl pro sekci Open Source - PŮVODNÍ, NYNÍ SE NEPOUŽÍVÁ V TĚLE */
-  .info-block {
-    padding: 15px;
-    background: var(--panel);
+  .engine-actions button {
+    margin-left: 6px;
+    font-size: 0.85em;
+    padding: 0.4em 0.7em;
     border-radius: 8px;
-    margin-top: 2em;
-    border: 1px solid var(--accent);
   }
-  .info-block h3 {
-    margin-top: 0;
-    color: var(--accent);
-    border-bottom: 1px solid var(--muted);
-    padding-bottom: 5px;
+  .section-container {
+    margin-bottom: 2em;
   }
-  .info-block p {
-    color: var(--text);
-    margin: 0 0 10px 0;
-    font-size: 0.95em;
+  .category-actions {
+    margin-top: 10px;
   }
-  .info-block hr {
-      border: 0;
-      border-top: 1px solid var(--muted);
-      margin: 15px 0;
+  .category-actions button {
+    margin-right: 8px;
   }
-
-  /* Styly pro popup (Donate i License) */
-  .popup { /* Společná třída pro oba popupy */
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #111;
-    border: 2px solid var(--accent);
-    padding: 2em;
-    color: #fff;
-    display: none;
-    border-radius: 8px;
+  footer {
     text-align: center;
-    z-index: 1000;
-    box-shadow: 0 0 30px rgba(196,22,22,0.8);
-    max-width: 90vw; /* Pro lepší zobrazení na mobilu */
-  }
-  .popup button {
-    background: var(--accent);
-    border: none;
-    color: white;
-    padding: .4em .8em;
-    margin-top: 1em;
-    border-radius: 5px;
-    cursor: pointer;
+    margin: 2em 0 1em;
+    font-size: 0.9em;
+    color: var(--muted);
   }
 </style>
 </head>
 <body class="dark">
-
-<div id="donatePopup" class="popup">
-  <h3>💉 Podpoř moji tvorbu!</h3>
-  <p>Pokud se ti líbí tento projekt, můžeš autorovi dobrovolně přispět na jeho další rozvoj.</p>
-  <p>Číslo účtu pro dary:</p>
-  <strong>1018678746/5500</strong>
-  <br>
-  <button id="closeDonatePopup">Zavřít</button>
-</div>
-
-<div id="licensePopup" class="popup">
-    <h3>💼 Open Source Licenční Nabídka (1500 Kč)</h3>
-    <p>
-      **✉️ Kontakt na autora:** Pro jakékoli dotazy nebo komerční nabídky, prosím, **pište předem** na **<a href="mailto:pludvik85@gmail.com" style="color: var(--accent); text-decoration: none;">pludvik85@gmail.com</a>**.
-    </p>
-    <hr style="border: 0; border-top: 1px solid var(--muted); margin: 15px 0;">
-    <p>
-      Ačkoliv je tento kód volně použitelný pro osobní potřebu, v případě zájmu o **komerční využití** či získání **plné autorské licence** (včetně kompletního zdrojového kódu bez omezení) je nabízena cena **1500 Kč**.
-    </p>
-    <p>
-      Autor si vyhrazuje právo si kód nechat a pro něj je použití zdarma.
-    </p>
-    <button id="closeLicensePopup">Zavřít</button>
-</div>
-
-
-<header>
-  Popik666 Browster Krvavě - Vyhledávače a Open Source Project (V 5.3)
-  <span id="visitCount"></span>
-</header>
+<header>Shinto Browster - Kompletní vyhledávače dle kategorií</header>
 <main>
   <div class="controls">
     <input id="searchInput" type="text" placeholder="Napiš co chceš hledat (např. galaxian, javascript, meme)..." />
     <button id="searchBtn">Hledat</button>
-    <button id="openAllBtn" class="secondary" disabled>Otevřít vše</button>
-    <button id="donateBtn">💰 Podpoř autora</button>
-    <button id="licenseBtn" class="secondary">💼 Komerční licence</button> </div>
+    <button id="openAllBtn" class="secondary" disabled>Sloučit všechny odkazy do karty</button>
+    <button id="toggleThemeBtn" class="secondary">Světlo / Tma</button>
+  </div>
 
   <div id="resultsContainer">
-    <p>Napište dotaz do pole výše pro aktivaci Hledání.</p>
+    <p>Zadej dotaz a klikni Hledat - zobrazí se vyhledávače.</p>
   </div>
 </main>
-<footer>Popik666 © 2025</footer>
+<footer>Shinto © 2026</footer>
 
 <script>
 (() => {
   const searchInput = document.getElementById('searchInput');
   const searchBtn = document.getElementById('searchBtn');
-  const openAllBtn = document.getElementById('openAllBtn');
+  // Změna názvu pro srozumitelnost
+  const openSummaryBtn = document.getElementById('openAllBtn'); 
+  const toggleThemeBtn = document.getElementById('toggleThemeBtn');
   const resultsContainer = document.getElementById('resultsContainer');
-  const visitCountSpan = document.getElementById('visitCount');
-  
-  // === Donate popup logika ===
-  const donateBtn = document.getElementById("donateBtn");
-  const donatePopup = document.getElementById("donatePopup");
-  const closeDonatePopup = document.getElementById("closeDonatePopup"); // Změněné ID
-  
-  donateBtn.onclick = () => donatePopup.style.display = "block";
-  closeDonatePopup.onclick = () => donatePopup.style.display = "none";
 
-  // Zavření kliknutím mimo popup
-  donatePopup.addEventListener('click', (e) => {
-    if (e.target === donatePopup) {
-      donatePopup.style.display = 'none';
-    }
-  });
-
-
-  // === License popup logika (NOVÁ) ===
-  const licenseBtn = document.getElementById("licenseBtn");
-  const licensePopup = document.getElementById("licensePopup");
-  const closeLicensePopup = document.getElementById("closeLicensePopup");
-
-  licenseBtn.onclick = () => licensePopup.style.display = "block";
-  closeLicensePopup.onclick = () => licensePopup.style.display = "none";
-  
-  // Zavření kliknutím mimo popup
-  licensePopup.addEventListener('click', (e) => {
-    if (e.target === licensePopup) {
-      licensePopup.style.display = 'none';
-    }
-  });
-
-
-  // === POČÍTADLO NÁVŠTĚV STRÁNKY (V RÁMCI SESSION) ===
-  function updateVisitCount() {
-    let count = parseInt(sessionStorage.getItem('pageVisits')) || 0;
-    count++;
-    sessionStorage.setItem('pageVisits', count);
-    visitCountSpan.textContent = `Návštěv v této relaci: ${count}`;
-  }
-
-  // VYHLEDÁVAČE DLE KATEGORIÍ (data zůstávají beze změny)
+  // VYHLEDÁVAČE DLE KATEGORIÍ (ULTRA ROZŠÍŘENÁ VERZE 3.1 - NOVÁ STRUKTURA)
   const categories = {
-    "Globální & Regionální Giganti 🌐 (Maximální pokrytí)": [
-      {id:'google', name:'Google (Global Domination)', url:q=>`https://www.google.com/search?q=${encodeURIComponent(q)}`, bg:'#4285F4', icon:'G', fg:'#fff'},
-      {id:'bing', name:'Bing (Microsoft/AI)', url:q=>`https://www.bing.com/search?q=${encodeURIComponent(q)}`, bg:'#00a4ef', icon:'B', fg:'#fff'},
-      {id:'yandex', name:'Yandex (Rusko/Global Index)', url:q=>`https://yandex.com/search/?text=${encodeURIComponent(q)}`, bg:'#ff0000', icon:'Я', fg:'#fff'},
-      {id:'baidu', name:'Baidu (Čína Index)', url:q=>`https://www.baidu.com/s?wd=${encodeURIComponent(q)}`, bg:'#2932e1', icon:'度', fg:'#fff'},
-      {id:'naver', name:'Naver (Korea Index)', url:q=>`https://search.naver.com/search.naver?query=${encodeURIComponent(q)}`, bg:'#03c75a', icon:'N', fg:'#fff'},
-      {id:'seznam', name:'Seznam (Česko/CZ Index)', url:q=>`https://search.seznam.cz/?q=${encodeURIComponent(q)}`, bg:'#ffcc00', icon:'S', fg:'#000'},
-      {id:'yahoo', name:'Yahoo! (Classic Global)', url:q=>`https://search.yahoo.com/search?p=${encodeURIComponent(q)}`, bg:'#5a00a0', icon:'Y!', fg:'#fff'},
-      {id:'mailru', name:'Mail.ru (Rusko/Portál)', url:q=>`https://go.mail.ru/search?q=${encodeURIComponent(q)}`, bg:'#005eff', icon:'M', fg:'#fff'},
-      {id:'webde', name:'Web.de (Německo/Portál)', url:q=>`https://suche.web.de/web/search?q=${encodeURIComponent(q)}`, bg:'#ffc000', icon:'Wd', fg:'#000'},
-      {id:'gmx', name:'GMX (Německo/Portál)', url:q=>`https://suche.gmx.net/web/search?q=${encodeURIComponent(q)}`, bg:'#222', icon:'GMX', fg:'#fff'},
-      {id:'goo', name:'Goo (Japonsko/Portál)', url:q=>`https://search.goo.ne.jp/web.jsp?MT=${encodeURIComponent(q)}`, bg:'#30b200', icon:'Goo', fg:'#fff'},
-      {id:'aol', name:'AOL Search (US/Portál)', url:q=>`https://search.aol.com/aol/search?q=${encodeURIComponent(q)}`, bg:'#0000ff', icon:'AOL', fg:'#fff'},
+    // Globální, široce dostupné a mainstreamové vyhledávače
+    "Globální a Mainstream (General)": [
+      {id:'google', name:'Google', url:q=>`https://www.google.com/search?q=${encodeURIComponent(q)}`, bg:'#4285F4', icon:'G', fg:'#fff'},
+      {id:'bing', name:'Bing (Microsoft)', url:q=>`https://www.bing.com/search?q=${encodeURIComponent(q)}`, bg:'#00a4ef', icon:'B', fg:'#fff'},
+      {id:'yandex', name:'Yandex (Rusko)', url:q=>`https://yandex.com/search/?text=${encodeURIComponent(q)}`, bg:'#ff0000', icon:'Я', fg:'#fff'},
+      {id:'baidu', name:'Baidu (Čína)', url:q=>`https://www.baidu.com/s?wd=${encodeURIComponent(q)}`, bg:'#2932e1', icon:'度', fg:'#fff'},
+      {id:'naver', name:'Naver (Korea)', url:q=>`https://search.naver.com/search.naver?query=${encodeURIComponent(q)}`, bg:'#03c75a', icon:'N', fg:'#000'},
+      {id:'seznam', name:'Seznam.cz (Česko)', url:q=>`https://search.seznam.cz/?q=${encodeURIComponent(q)}`, bg:'#ff7700', icon:'S', fg:'#fff'},
+      {id:'qwant', name:'Qwant (Francie)', url:q=>`https://www.qwant.com/?q=${encodeURIComponent(q)}`, bg:'#0cb98e', icon:'Q', fg:'#fff'},
+      {id:'dogpile', name:'Dogpile (Metasearch)', url:q=>`https://www.dogpile.com/search/web?q=${encodeURIComponent(q)}`, bg:'#800080', icon:'🐕', fg:'#fff'},
+      {id:'ecosia', name:'Ecosia (Stromy)', url:q=>`https://www.ecosia.org/search?q=${encodeURIComponent(q)}`, bg:'#0f0', icon:'🌳', fg:'#000'}
     ],
-    "Soukromí a Alternativní Indexování 🛡️ (MAXIMÁLNÍ NEZÁVISLÉ INDEXY)": [
-      {id:'duckduckgo', name:'DuckDuckGo (Privacy Focused/Bing)', url:q=>`https://duckduckgo.com/?q=${encodeURIComponent(q)}`, bg:'#de5833', icon:'🦆', fg:'#fff'},
-      {id:'startpage', name:'Startpage (Privacy Proxy/Google)', url:q=>`https://www.startpage.com/sp/search?q=${encodeURIComponent(q)}`, bg:'#008080', icon:'S', fg:'#fff'},
-      {id:'brave', name:'Brave Search (Independent Index)', url:q=>`https://search.brave.com/search?q=${encodeURIComponent(q)}`, bg:'#fb542b', icon:'🦁', fg:'#fff'},
-      {id:'mojeek', name:'Mojeek (Own Crawler/UK)', url:q=>`https://www.mojeek.com/search?q=${encodeURIComponent(q)}`, bg:'#000000', icon:'M', fg:'#fff'},
-      {id:'kagi', name:'Kagi (Own Index/AI - Premium)', url:q=>`https://kagi.com/search?q=${encodeURIComponent(q)}`, bg:'#f26522', icon:'K', fg:'#fff'},
-      {id:'youcom', name:'You.com (AI Search)', url:q=>`https://you.com/search?q=${encodeURIComponent(q)}`, bg:'#007bff', icon:'Y', fg:'#fff'},
-      {id:'swisscows', name:'Swisscows (Privacy/EU)', url:q=>`https://swisscows.com/web?query=${encodeURIComponent(q)}`, bg:'#3498db', icon:'🐮', fg:'#fff'},
-      {id:'presearch', name:'Presearch (Decentralized Network)', url:q=>`https://engine.presearch.org/search?q=${encodeURIComponent(q)}`, bg:'#19b9d3', icon:'P', fg:'#fff'},
-      {id:'qwant', name:'Qwant (Europe/No Tracking)', url:q=>`https://www.qwant.com/?q=${encodeURIComponent(q)}`, bg:'#0cb98e', icon:'Q', fg:'#fff'},
-      {id:'ecosia', name:'Ecosia (Trees/Bing Based)', url:q=>`https://www.ecosia.org/search?q=${encodeURIComponent(q)}`, bg:'#0f0', icon:'🌳', fg:'#000'},
-      {id:'yacy', name:'YaCy (P2P Search/Decentralized)', url:q=>`https://search.yacy.net/yacysearch.html?query=${encodeURIComponent(q)}`, bg:'#4080ff', icon:'Y!', fg:'#fff'},
-      {id:'gigablast', name:'Gigablast (Own Index)', url:q=>`https://www.gigablast.com/search?q=${encodeURIComponent(q)}`, bg:'#0080ff', icon:'GB', fg:'#fff'},
+    // Vyhledávače zaměřené na soukromí, bez sledování a s alternativními výsledky
+    "Soukromé a Alternativní (Privacy/Free)": [
+      {id:'duckduckgo', name:'DuckDuckGo (No Tracking)', url:q=>`https://duckduckgo.com/?q=${encodeURIComponent(q)}`, bg:'#de5833', icon:'🦆', fg:'#fff'},
+      {id:'startpage', name:'Startpage (Google Anonymně)', url:q=>`https://www.startpage.com/sp/search?q=${encodeURIComponent(q)}`, bg:'#008080', icon:'S', fg:'#fff'},
+      {id:'brave', name:'Brave Search (Nezávislý index)', url:q=>`https://search.brave.com/search?q=${encodeURIComponent(q)}`, bg:'#fb542b', icon:'🦁', fg:'#fff'},
+      {id:'searx', name:'SearX (Metasearch Aggregator)', url:q=>`https://searx.org/?q=${encodeURIComponent(q)}`, bg:'#222', icon:'🔎', fg:'#fff'},
+      {id:'swisscows', name:'Swisscows (Datacentrum ve Švýcarsku)', url:q=>`https://swisscows.com/web?query=${encodeURIComponent(q)}`, bg:'#000080', icon:'🇨🇭', fg:'#fff'},
+      {id:'neeva', name:'Neeva (Ad-free & Subscription)', url:q=>`https://neeva.com/search?q=${encodeURIComponent(q)}`, bg:'#e70000', icon:'N', fg:'#fff'},
+      {id:'gigablast', name:'Gigablast (Open Source Index)', url:q=>`https://www.gigablast.com/search?q=${encodeURIComponent(q)}`, bg:'#0000ff', icon:'⚡', fg:'#fff'},
+      {id:'metager', name:'MetaGer (Německo)', url:q=>`https://metager.org/`, bg:'#008b8b', icon:'🛡️', fg:'#fff'}
     ],
-    "Speciální a Firemní Nástroje 🕵️ (OSINT, Data, Zranitelnosti)": [
-      {id:'shodan', name:'Shodan (IoT/Devices)', url:q=>`https://www.shodan.io/search?query=${encodeURIComponent(q)}`, bg:'#000', icon:'🤖', fg:'#fff'},
-      {id:'censys', name:'Censys (Attack Surface)', url:q=>`https://search.censys.io/search?q=${encodeURIComponent(q)}`, bg:'#191970', icon:'CS', fg:'#fff'},
-      {id:'exploitdb', name:'Exploit-DB (Zranitelnosti)', url:q=>`https://www.exploit-db.com/search?q=${encodeURIComponent(q)}`, bg:'#ff7f50', icon:'EXP', fg:'#000'},
-      {id:'inteltech', name:'IntelTechniques (OSINT/Lidé)', url:q=>`https://inteltechniques.com/tools/index.html#search`, bg:'#6a5acd', icon:'🔎', fg:'#fff'},
-      {id:'exalead', name:'Exalead (Dassault - Pro Data)', url:q=>`https://www.exalead.com/search/web/results/?q=${encodeURIComponent(q)}`, bg:'#1e2762', icon:'EX', fg:'#fff'},
-      {id:'filetypePDF', name:'Google (jen PDF)', url:q=>`https://www.google.com/search?q=${encodeURIComponent(q)}+filetype%3Apdf`, bg:'#FF0000', icon:'PDF', fg:'#fff'}
+    // Vyhledávače specializované na konkrétní typy dat nebo nástrojů
+    "Speciální Formáty a AI (Specialty)": [
+      {id:'perplexity', name:'Perplexity AI (Chatbot/Search)', url:q=>`https://www.perplexity.ai/search?q=${encodeURIComponent(q)}`, bg:'#000080', icon:'🧠', fg:'#fff'},
+      {id:'phind', name:'Phind (Tech AI/Code)', url:q=>`https://www.phind.com/search?q=${encodeURIComponent(q)}`, bg:'#008080', icon:'👨‍🔬', fg:'#fff'},
+      {id:'filetypePDF', name:'Google (jen PDF)', url:q=>`https://www.google.com/search?q=${encodeURIComponent(q)}+filetype%3Apdf`, bg:'#FF0000', icon:'PDF', fg:'#fff'},
+      {id:'filetypeDOC', name:'Google (jen DOC/DOCX)', url:q=>`https://www.google.com/search?q=${encodeURIComponent(q)}+filetype%3Adoc+OR+filetype%3Adocx`, bg:'#008000', icon:'DOC', fg:'#fff'},
+      {id:'wolframalpha', name:'WolframAlpha (Výpočty/Data)', url:q=>`https://www.wolframalpha.com/input?i=${encodeURIComponent(q)}`, bg:'#f26522', icon:'∑', fg:'#fff'},
+      {id:'archiveorgFiles', name:'Archive.org (Soubory)', url:q=>`https://archive.org/details/software?query=${encodeURIComponent(q)}`, bg:'#333', icon:'💾', fg:'#fff'},
+      {id:'pdfdrive', name:'PDF Drive (Knihy/Soubory)', url:q=>`https://www.pdfdrive.com/search?q=${encodeURIComponent(q)}`, bg:'#009688', icon:'📚', fg:'#fff'}
     ],
-    "Kódování a Dokumentace 👨‍💻 (Ecosystem Coverage)": [
+    "Kódování, IT a Dokumentace": [
       {id:'stackoverflow', name:'Stack Overflow', url:q=>`https://stackoverflow.com/search?q=${encodeURIComponent(q)}`, bg:'#f48024', icon:'👨‍💻', fg:'#fff'},
       {id:'github', name:'GitHub (Code)', url:q=>`https://github.com/search?q=${encodeURIComponent(q)}`, bg:'#333', icon:'🐙', fg:'#fff'},
-      {id:'gitlab', name:'GitLab (Code)', url:q=>`https://gitlab.com/search?search=${encodeURIComponent(q)}`, bg:'#fca326', icon:'🦊', fg:'#000'},
-      {id:'npm', name:'npm (JS Packages)', url:q=>`https://www.npmjs.com/search?q=${encodeURIComponent(q)}`, bg:'#cc3534', icon:'📦', fg:'#fff'},
-      {id:'pypi', name:'PyPI (Python Packages)', url:q=>`https://pypi.org/search/?q=${encodeURIComponent(q)}`, bg:'#3776ab', icon:'🐍', fg:'#fff'},
-      {id:'composer', name:'Composer (PHP Packages)', url:q=>`https://packagist.org/search/?q=${encodeURIComponent(q)}`, bg:'#880e4f', icon:'PH', fg:'#fff'},
-      {id:'godocs', name:'Go Documentation', url:q=>`https://pkg.go.dev/search?q=${encodeURIComponent(q)}`, bg:'#00ADD8', icon:'G', fg:'#000'},
-      {id:'developerMoz', name:'MDN Web Docs', url:q=>`https://developer.mozilla.org/en-US/search?q=${encodeURIComponent(q)}`, bg:'#000', icon:'🌐', fg:'#fff'}
+      {id:'gitlab', name:'GitLab', url:q=>`https://gitlab.com/search?search=${encodeURIComponent(q)}&scope=projects`, bg:'#fca121', icon:'🦊', fg:'#000'},
+      {id:'npm', name:'npm (Packages)', url:q=>`https://www.npmjs.com/search?q=${encodeURIComponent(q)}`, bg:'#cc3534', icon:'📦', fg:'#fff'},
+      {id:'developerMoz', name:'MDN Web Docs', url:q=>`https://developer.mozilla.org/en-US/search?q=${encodeURIComponent(q)}`, bg:'#000', icon:'🌐', fg:'#fff'},
+      {id:'readthedocs', name:'Read the Docs', url:q=>`https://readthedocs.org/search/?q=${encodeURIComponent(q)}`, bg:'#00a498', icon:'📝', fg:'#fff'},
+      {id:'hackernews', name:'Hacker News Search', url:q=>`https://hn.algolia.com/?query=${encodeURIComponent(q)}&sort=byDate&type=story`, bg:'#ff6600', icon:'📰', fg:'#fff'}
     ],
-    "Video, Streaming a Torrenty (P2P) 🔥": [
+    "Video, Streaming a Torrenty (P2P)": [
       {id:'youtube', name:'YouTube', url:q=>`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`, bg:'#ff0000', icon:'▶', fg:'#fff'},
-      {id:'ulozto', name:'Ulož.to (CZ/SK Fileserver)', url:q=>`https://www.ulozto.cz/hledej?q=${encodeURIComponent(q)}`, bg:'#2ecc71', icon:'💾', fg:'#000'},
-      {id:'cztorrent', name:'CZ Torrent / Tracker (CZ/SK)', url:q=>`https://www.cztorrent.net/hledej/${encodeURIComponent(q)}`, bg:'#0099cc', icon:'🇨🇿', fg:'#fff'},
-      {id:'1337x', name:'1337x (Global Torrent)', url:q=>`https://www.1337x.to/search/${encodeURIComponent(q)}/1/`, bg:'#5e0030', icon:'🔥', fg:'#fff'},
-      {id:'torrentgalaxy', name:'TorrentGalaxy (Global)', url:q=>`https://torrentgalaxy.to/torrents.php?search=${encodeURIComponent(q)}`, bg:'#2e8b57', icon:'G', fg:'#fff'},
-      {id:'pirateBay1', name:'The Pirate Bay (Proxy 1)', url:q=>`https://tpbproxy.xyz/s/?q=${encodeURIComponent(q)}`, bg:'#000', icon:'🏴‍☠️', fg:'#fff'}
+      {id:'twitch', name:'Twitch (Live Hry)', url:q=>`https://www.twitch.tv/search?term=${encodeURIComponent(q)}`, bg:'#6441a5', icon:'🎮', fg:'#fff'},
+      {id:'vimeo', name:'Vimeo', url:q=>`https://vimeo.com/search?q=${encodeURIComponent(q)}`, bg:'#1ab7ea', icon:'V', fg:'#fff'},
+      {id:'bitchute', name:'BitChute (Alternativa)', url:q=>`https://www.bitchute.com/search/?query=${encodeURIComponent(q)}`, bg:'#ffcc00', icon:'📹', fg:'#000'},
+      {id:'dailymotion', name:'Dailymotion', url:q=>`https://www.dailymotion.com/search/${encodeURIComponent(q)}`, bg:'#0066ff', icon:'DM', fg:'#fff'},
+      {id:'torrentGalaxy', name:'TorrentGalaxy', url:q=>`https://torrentgalaxy.to/torrents.php?search=${encodeURIComponent(q)}`, bg:'#2a3d4f', icon:'⬇️', fg:'#fff'},
+      {id:'yts', name:'YTS (Filmy)', url:q=>`https://yts.mx/browse-movies/${encodeURIComponent(q)}/all/all/0/latest/0/all`, bg:'#008080', icon:'🎬', fg:'#fff'},
+      // >>> NOVĚ PŘIDANÉ ZDROJE TORRENTŮ <<<
+      {id:'1337x', name:'1337x (Torrent Index)', url:q=>`https://www.1337x.to/search/${encodeURIComponent(q)}/1/`, bg:'#000', icon:'🔥', fg:'#fff'}, 
+      {id:'rarbg', name:'RARBG (Proxy)', url:q=>`https://rargb.to/search/${encodeURIComponent(q)}`, bg:'#00008b', icon:'⭐', fg:'#fff'},
+      {id:'rutracker', name:'RuTracker', url:q=>`http://rutracker.org/forum/tracker.php?nm=${encodeURIComponent(q)}`, bg:'#40a02b', icon:'🇷🇺', fg:'#fff'},
+      {id:'nyaa', name:'Nyaa.si (Anime/Asie)', url:q=>`https://nyaa.si/?f=0&c=0_0&q=${encodeURIComponent(q)}`, bg:'#5c4d7d', icon:'🐱', fg:'#fff'},
+      // >>> PŮVODNÍ ZDROJ <<<
+      {id:'pirateBay', name:'The Pirate Bay (Proxy)', url:q=>`https://apibay.org/pre-search/?q=${encodeURIComponent(q)}`, bg:'#000', icon:'🏴‍☠️', fg:'#fff'}
     ],
-    "Archivy a Historie webu ⏳ (Věda & Data)": [
-      {id:'archiveOrg', name:'Internet Archive (Wayback)', url:q=>`https://web.archive.org/web/*/${encodeURIComponent(q)}`, bg:'#604000', icon:'⏳', fg:'#fff'},
-      {id:'zlibrary', name:'Z-Library (Knihy/Sci-Hub Alt.)', url:q=>`https://z-lib.io/s/${encodeURIComponent(q)}`, bg:'#008080', icon:'📚', fg:'#fff'},
-      {id:'commonCrawl', name:'Common Crawl Index (Big Data)', url:q=>`https://index.commoncrawl.org/CC-MAIN-2024-10/search?q=${encodeURIComponent(q)}`, bg:'#800080', icon:'📜', fg:'#fff'},
-      {id:'publicdomain', name:'Public Domain Resources', url:q=>`https://www.pdinfo.com/search.php?q=${encodeURIComponent(q)}`, bg:'#663399', icon:'PDR', fg:'#fff'}
+    "Vyhledávání Obrázků a Klipartů": [
+      {id:'googleImg', name:'Google Obrázky', url:q=>`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(q)}`, bg:'#ffd54a', icon:'🖼', fg:'#000'},
+      {id:'bingImg', name:'Bing Obrázky', url:q=>`https://www.bing.com/images/search?q=${encodeURIComponent(q)}`, bg:'#00a4ef', icon:'🖼', fg:'#fff'},
+      {id:'unsplash', name:'Unsplash (HD Stock)', url:q=>`https://unsplash.com/s/photos/${encodeURIComponent(q)}`, bg:'#000', icon:'📸', fg:'#fff'},
+      {id:'pexels', name:'Pexels (Free Stock)', url:q=>`https://www.pexels.com/search/${encodeURIComponent(q)}`, bg:'#00676c', icon:'📷', fg:'#fff'},
+      {id:'flickr', name:'Flickr', url:q=>`https://www.flickr.com/search/?text=${encodeURIComponent(q)}`, bg:'#ff0077', icon:'F', fg:'#fff'},
+      {id:'giphy', name:'Giphy (GIFs)', url:q=>`https://giphy.com/search/${encodeURIComponent(q)}`, bg:'#ff0000', icon:'✨', fg:'#fff'},
+      {id:'ccSearch', name:'CC Search (Licence)', url:q=>`https://search.creativecommons.org/search?q=${encodeURIComponent(q)}`, bg:'#9300ff', icon:'©', fg:'#fff'},
+      {id:'istock', name:'iStock (Placené)', url:q=>`https://www.istockphoto.com/search/2/image?phrase=${encodeURIComponent(q)}`, bg:'#2a9d8f', icon:'💰', fg:'#fff'}
     ],
-    "Akademické zdroje a Věda 🎓 (Hluboká Věda)": [
+    "Akademické zdroje a Věda": [
       {id:'scholar', name:'Google Scholar', url:q=>`https://scholar.google.com/scholar?q=${encodeURIComponent(q)}`, bg:'#4285F4', icon:'🎓', fg:'#fff'},
       {id:'pubmed', name:'PubMed (Medicína)', url:q=>`https://pubmed.ncbi.nlm.nih.gov/?term=${encodeURIComponent(q)}`, bg:'#005f73', icon:'⚕️', fg:'#fff'},
       {id:'arxiv', name:'arXiv (Preprints)', url:q=>`https://arxiv.org/search/?query=${encodeURIComponent(q)}&searchtype=all`, bg:'#800000', icon:'📑', fg:'#fff'},
-      {id:'sciencedirect', name:'ScienceDirect (Věd. Články)', url:q=>`https://www.sciencedirect.com/search?qs=${encodeURIComponent(q)}`, bg:'#ff6600', icon:'SD', fg:'#fff'},
-      {id:'semanticscholar', name:'Semantic Scholar (AI Věda)', url:q=>`https://www.semanticscholar.org/search?q=${encodeURIComponent(q)}`, bg:'#324b4e', icon:'🧠', fg:'#fff'},
-      {id:'jstor', name:'JSTOR (Akademické)', url:q=>`https://www.jstor.org/action/doBasicSearch?Query=${encodeURIComponent(q)}`, bg:'#00305f', icon:'📰', fg:'#fff'}
+      {id:'jstor', name:'JSTOR (Akademické)', url:q=>`https://www.jstor.org/action/doBasicSearch?Query=${encodeURIComponent(q)}`, bg:'#00305f', icon:'📰', fg:'#fff'},
+      {id:'scienceDirect', name:'ScienceDirect', url:q=>`https://www.sciencedirect.com/search?qs=${encodeURIComponent(q)}`, bg:'#ff6600', icon:'🧪', fg:'#fff'},
+      {id:'researchgate', name:'ResearchGate', url:q=>`https://www.researchgate.net/search/publication?q=${encodeURIComponent(q)}`, bg:'#00ccb3', icon:'🔬', fg:'#000'}
     ],
-    "Fóra, Diskuse a Sociální média 💬 (Komunita & Inzerce)": [
+    "Fóra, Diskuse a Sociální média": [
       {id:'reddit', name:'Reddit (Diskuze)', url:q=>`https://www.reddit.com/search/?q=${encodeURIComponent(q)}`, bg:'#ff4500', icon:'🆁', fg:'#fff'},
-      {id:'discord', name:'Discord (Server Search)', url:q=>`https://disboard.org/search?q=${encodeURIComponent(q)}`, bg:'#7289da', icon:'D', fg:'#fff'},
-      {id:'telegram', name:'Telegram (Channel Search)', url:q=>`https://tgstat.com/en/search?q=${encodeURIComponent(q)}`, bg:'#0088cc', icon:'✈️', fg:'#fff'},
-      {id:'sreality', name:'Sreality (CZ/SK Reality)', url:q=>`https://www.sreality.cz/hledani/${encodeURIComponent(q)}`, bg:'#2980b9', icon:'🏠', fg:'#fff'},
-      {id:'sauto', name:'Sauto (CZ/SK Vozidla)', url:q=>`https://www.sauto.cz/?search=${encodeURIComponent(q)}`, bg:'#16a085', icon:'🚗', fg:'#fff'},
-      {id:'twitter', name:'X / Twitter', url:q=>`https://twitter.com/search?q=${encodeURIComponent(q)}`, bg:'#000', icon:'𝕏', fg:'#fff'}
-    ],
-    "Nákup a Produkty 🛒 (Lokální & Globální B2B)": [
-      {id:'heureka', name:'Heureka (ČR/SK Porovnání)', url:q=>`https://www.heureka.cz/?h%5Bfraze%5D=${encodeURIComponent(q)}`, bg:'#ef7200', icon:'💰', fg:'#fff'},
-      {id:'alza', name:'Alza.cz (CZ/SK Tech)', url:q=>`https://www.alza.cz/search.htm?exps=${encodeURIComponent(q)}`, bg:'#0099ff', icon:'👽', fg:'#fff'},
-      {id:'amazon', name:'Amazon (Globální/US)', url:q=>`https://www.amazon.com/s?k=${encodeURIComponent(q)}`, bg:'#FF9900', icon:'📦', fg:'#000'},
-      {id:'ebay', name:'eBay (Aukce/Global)', url:q=>`https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(q)}`, bg:'#3333ff', icon:'🏷️', fg:'#fff'},
-      {id:'alibaba', name:'Alibaba (B2B Global/Čína)', url:q=>`https://www.alibaba.com/trade/search?SearchText=${encodeURIComponent(q)}`, bg:'#f90', icon:'B2B', fg:'#fff'}
-    ],
-    "Filmy, Hudba a Databáze 💿 (Média & Reference)": [
-      {id:'wikipedia', name:'Wikipedia', url:q=>`https://en.wikipedia.org/w/index.php?search=${encodeURIComponent(q)}`, bg:'#888', icon:'W', fg:'#000'},
-      {id:'imdb', name:'IMDb (Filmy/TV)', url:q=>`https://www.imdb.com/find/?q=${encodeURIComponent(q)}`, bg:'#f3ce13', icon:'🍿', fg:'#000'},
-      {id:'csfd', name:'ČSFD (Česko-Slovenská)', url:q=>`https://www.csfd.cz/hledat/?q=${encodeURIComponent(q)}`, bg:'#8b0000', icon:'🇨🇿', fg:'#fff'},
-      {id:'rotten', name:'Rotten Tomatoes (Recenze)', url:q=>`https://www.rottentomatoes.com/search?q=${encodeURIComponent(q)}`, bg:'#ff0000', icon:'🍅', fg:'#fff'},
-      {id:'discogs', name:'Discogs (Hudba/Alba)', url:q=>`https://www.discogs.com/search/?q=${encodeURIComponent(q)}`, bg:'#000', icon:'💿', fg:'#fff'},
-      {id:'lastfm', name:'Last.fm (Hudba Data)', url:q=>`https://www.last.fm/search?q=${encodeURIComponent(q)}`, bg:'#d51007', icon:'L', fg:'#fff'}
-    ],
-    "Obrázky, Média a Umění 🖼️": [
-      {id:'googleImg', name:'Google Obrázky', url:q=>`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(q)}`, bg:'#ffd54a', icon:'🖼', fg:'#000'},
+      {id:'twitter', name:'X / Twitter', url:q=>`https://twitter.com/search?q=${encodeURIComponent(q)}`, bg:'#000', icon:'𝕏', fg:'#fff'},
+      {id:'quora', name:'Quora (Otázky/Odpovědi)', url:q=>`https://www.quora.com/search?q=${encodeURIComponent(q)}`, bg:'#aa2200', icon:'Q?', fg:'#fff'},
+      {id:'4chan', name:'4chan Search (Yaki)', url:q=>`https://yuki.la/search?q=${encodeURIComponent(q)}`, bg:'#454d55', icon:'4️⃣', fg:'#fff'},
       {id:'pinterest', name:'Pinterest (Kolekce)', url:q=>`https://cz.pinterest.com/search/pins/?q=${encodeURIComponent(q)}`, bg:'#bd081c', icon:'📍', fg:'#fff'},
-      {id:'unsplash', name:'Unsplash (HD Stock)', url:q=>`https://unsplash.com/s/photos/${encodeURIComponent(q)}`, bg:'#000', icon:'📸', fg:'#fff'},
-      {id:'flickr', name:'Flickr (Profi Fotky)', url:q=>`https://www.flickr.com/search/?text=${encodeURIComponent(q)}`, bg:'#ff00ae', icon:'F', fg:'#fff'}
+      {id:'facebook', name:'Facebook Search', url:q=>`https://www.facebook.com/search/top?q=${encodeURIComponent(q)}`, bg:'#4267B2', icon:'f', fg:'#fff'},
+      {id:'vk', name:'VK (Vkontakte)', url:q=>`https://vk.com/search?c%5Bsection%5D=communities&c%5Bq%5D=${encodeURIComponent(q)}`, bg:'#4C75A3', icon:'VK', fg:'#fff'}
     ],
-    "Knihy a Mapy 🗺️": [
-      {id:'googleBooks', name:'Google Books', url:q=>`https://www.google.com/search?tbm=bks&q=${encodeURIComponent(q)}`, bg:'#4285F4', icon:'📚', fg:'#fff'},
-      {id:'gutenberg', name:'Project Gutenberg (Knihy)', url:q=>`https://www.gutenberg.org/ebooks/search/?query=${encodeURIComponent(q)}`, bg:'#f90', icon:'📖', fg:'#000'},
-      {id:'googleMaps', name:'Google Maps', url:q=>`https://www.google.com/maps/search/${encodeURIComponent(q)}`, bg:'#4285F4', icon:'🗺', fg:'#fff'},
-      {id:'mapyCz', name:'Mapy.cz (ČR/SK)', url:q=>`https://mapy.cz/turisticka?q=${encodeURIComponent(q)}`, bg:'#0050ff', icon:'🇨🇿', fg:'#fff'}
+    "Archivy a Historie webu": [
+      {id:'archiveOrg', name:'Internet Archive (Wayback)', url:q=>`https://web.archive.org/web/*/${encodeURIComponent(q)}`, bg:'#604000', icon:'⏳', fg:'#fff'},
+      {id:'commonCrawl', name:'Common Crawl Index', url:q=>`https://index.commoncrawl.org/CC-MAIN-2024-10/search?q=${encodeURIComponent(q)}`, bg:'#800080', icon:'📜', fg:'#fff'},
+      {id:'oldWebToday', name:'Old Web Today', url:q=>`https://oldwebtoday.com/search?q=${encodeURIComponent(q)}`, bg:'#900', icon:'🕰️', fg:'#fff'},
+      {id:'githubArchive', name:'GitHub Repozitáře', url:q=>`https://github.com/search?q=${encodeURIComponent(q)}`, bg:'#333', icon:'💾', fg:'#fff'},
+      {id:'millionshort', name:'Million Short (Long-Tail)', url:q=>`https://millionshort.com/search?q=${encodeURIComponent(q)}`, bg:'#8b0000', icon:'🔬', fg:'#fff'}
+    ],
+    "Dark web / TOR vyhledávače (Clearnet Proxy)": [
+      {id:'ahmia', name:'Ahmia (Index TOR)', url:q=>`https://ahmia.fi/search/?q=${encodeURIComponent(q)}`, bg:'#555', icon:'🕵️‍♂️', fg:'#fff'},
+      {id:'notEvil', name:'Not Evil (TOR)', url:q=>`http://example.onion/search/?q=${encodeURIComponent(q)}`, bg:'#111', icon:'👁️', fg:'#fff'},
+      {id:'darkfail', name:'Dark.Fail (News TOR)', url:q=>`http://example2.onion/`, bg:'#300', icon:'📰', fg:'#fff'}
     ]
   };
 
-  // ------------------------------------
-  // LOGIKA VYKRESLOVÁNÍ
-  // ------------------------------------
-
   function createEngineCard(engine, query) {
-    const a = document.createElement('a');
-    a.href = engine.url(query);
-    a.target = '_blank';
-    a.rel = 'noopener noreferrer nofollow';
-    a.className = 'engine-card';
-
-    a.style.color = engine.fg;
+    const card = document.createElement('div');
+    card.className = 'engine-card';
 
     const logo = document.createElement('div');
     logo.className = 'engine-logo';
-    logo.style.background = engine.bg;
-    logo.style.color = engine.fg;
+    logo.style.backgroundColor = engine.bg;
+    logo.style.color = engine.fg || '#fff';
     logo.textContent = engine.icon;
+    card.appendChild(logo);
 
     const info = document.createElement('div');
     info.className = 'engine-info';
+
     const name = document.createElement('div');
     name.className = 'engine-name';
     name.textContent = engine.name;
-    const urlText = document.createElement('div');
-    urlText.className = 'engine-url';
-    let displayUrl = engine.url('').replace(/https?:\/\//,'').replace(/\?.*$/,'');
-    urlText.textContent = displayUrl;
-
-    const rootStyles = getComputedStyle(document.documentElement);
-    const mutedColor = rootStyles.getPropertyValue('--muted');
-    urlText.style.color = mutedColor;
-
     info.appendChild(name);
-    info.appendChild(urlText);
 
-    a.appendChild(logo);
-    a.appendChild(info);
+    const urlEl = document.createElement('div');
+    urlEl.className = 'engine-url';
+    
+    if (!engine.url(query).includes('example.onion') && !engine.url(query).includes('.onion/')) {
+        urlEl.textContent = engine.url(query);
+    } else {
+        urlEl.textContent = 'TOR/Darknet URL (pouze Tor Browser)';
+    }
+    info.appendChild(urlEl);
 
-    return a;
+    card.appendChild(info);
+
+    const actions = document.createElement('div');
+    actions.className = 'engine-actions';
+
+    const openBtn = document.createElement('button');
+    openBtn.textContent = 'Otevřít';
+    
+    if (!engine.url(query).includes('example.onion') && !engine.url(query).includes('.onion/')) {
+        openBtn.onclick = () => window.open(engine.url(query), '_blank');
+    } else {
+        openBtn.disabled = true;
+        openBtn.textContent = 'TOR only';
+    }
+    actions.appendChild(openBtn);
+
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'secondary';
+    copyBtn.textContent = 'Kopírovat';
+    copyBtn.onclick = () => {
+      const urlToCopy = (engine.url(query).includes('example.onion') || engine.url(query).includes('.onion/'))
+                        ? 'TOR/Darknet adresa (nutný Tor Browser): ' + engine.url(query) 
+                        : engine.url(query);
+                        
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(urlToCopy)
+          .then(() => alert('URL zkopírováno'))
+          .catch(() => fallbackCopy(urlToCopy));
+      } else {
+        fallbackCopy(urlToCopy);
+      }
+    };
+    actions.appendChild(copyBtn);
+
+    card.appendChild(actions);
+
+    return card;
   }
 
-  function renderResults() {
-    const query = searchInput.value;
-    const trimmedQuery = query.trim();
+  function fallbackCopy(text) {
+    const dummy = document.createElement('textarea');
+    document.body.appendChild(dummy);
+    dummy.value = text;
+    dummy.select();
+    document.execCommand('copy');
+    document.body.removeChild(dummy);
+    alert('URL zkopírováno (fallback)');
+  }
 
-    resultsContainer.innerHTML = '';
+  function createSummaryHTML(query) {
+    let htmlContent = `
+      <!DOCTYPE html>
+      <html lang="cs">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Sloučené výsledky Shinto: ${query}</title>
+        <style>
+          body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; background: #000; color: #eee; padding: 20px; }
+          h1 { color: #c41616; border-bottom: 3px solid #c41616; padding-bottom: 10px; text-shadow: 0 0 8px rgba(196,22,22,0.5); }
+          h2 { color: #eee; margin-top: 30px; font-size: 1.5em; border-bottom: 1px solid #333; padding-bottom: 5px; }
+          .result-list { list-style: none; padding: 0; }
+          .result-list li { margin-bottom: 15px; background: #111; padding: 12px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+          .result-list li:hover { background: #222; }
+          .result-list li a { color: #4285F4; text-decoration: none; font-weight: bold; font-size: 1.1em; }
+          .result-list li a:hover { color: #ff0000; }
+          .source { font-size: 0.85em; color: #888; display: block; word-break: break-all; margin-top: 5px; }
+          .logo-icon { margin-right: 10px; font-size: 1.2em; }
+          .tor-note { color: #c41616; font-weight: bold; }
+        </style>
+      </head>
+      <body>
+        <h1>Sloučené výsledky pro dotaz: "${query}"</h1>
+        <p style="color: #aaa;">Klikněte na název vyhledávače pro otevření výsledku v nové kartě.</p>
+    `;
 
-    if (!trimmedQuery) {
-        resultsContainer.innerHTML = '<p>Napište dotaz do pole výše pro aktivaci Hledání.</p>';
-        openAllBtn.disabled = true;
-        return;
+    for (const categoryName in categories) {
+      htmlContent += `<h2>${categoryName}</h2><ul class="result-list">`;
+      categories[categoryName].forEach(engine => {
+        const url = engine.url(query);
+        const isTor = url.includes('.onion') || url.includes('example.onion') || url.includes('.onion/');
+
+        const urlDisplay = isTor
+                           ? 'TOR/Darknet URL (Nelze otevřít z Clearnetu)' 
+                           : url;
+        
+        const linkStyle = isTor ? 'style="color: #c41616;"' : '';
+        const href = isTor ? '#' : url;
+        const target = isTor ? '' : 'target="_blank"';
+
+        htmlContent += `
+          <li>
+            <span class="logo-icon" style="color:${engine.fg || '#fff'}; background-color:${engine.bg}; padding: 3px 6px; border-radius: 4px;">${engine.icon}</span>
+            <a href="${href}" ${target} ${linkStyle}>${engine.name} - Otevřít</a>
+            <span class="source">${isTor ? '<span class="tor-note">' + urlDisplay + '</span>' : urlDisplay}</span>
+          </li>
+        `;
+      });
+      htmlContent += `</ul>`;
     }
 
+    htmlContent += `<p style="text-align: center; color: #555; margin-top: 50px;">Shinto © 2026</p></body></html>`;
+    return htmlContent;
+  }
 
-    for (const [categoryName, engines] of Object.entries(categories)) {
+  function renderResults(query) {
+    resultsContainer.innerHTML = '';
+    if (!query.trim()) {
+      resultsContainer.innerHTML = '<p>Zadej dotaz a klikni Hledat.</p>';
+      openSummaryBtn.disabled = true;
+      return;
+    }
+
+    for (const categoryName in categories) {
       const section = document.createElement('section');
       section.className = 'section-container';
 
-      const h2 = document.createElement('h2');
-      h2.textContent = categoryName;
+      const heading = document.createElement('h2');
+      heading.textContent = categoryName;
+      section.appendChild(heading);
 
-      h2.addEventListener('click', () => {
-          h2.classList.toggle('collapsed');
-      });
-      h2.classList.add('collapsed');
+      const list = document.createElement('div');
+      list.className = 'engine-list';
 
-      section.appendChild(h2);
-
-      const listDiv = document.createElement('div');
-      listDiv.className = 'engine-list';
-
-      engines.forEach(engine => {
-        const card = createEngineCard(engine, trimmedQuery);
-        listDiv.appendChild(card);
+      categories[categoryName].forEach(engine => {
+        engine.category = categoryName; 
+        list.appendChild(createEngineCard(engine, query));
       });
 
-      section.appendChild(listDiv);
+      section.appendChild(list);
+      
+      const categoryActions = document.createElement('div');
+      categoryActions.className = 'category-actions';
+
+      const categoryOpenAllBtn = document.createElement('button');
+      categoryOpenAllBtn.textContent = `Otevřít Vše v nových kartách (${categoryName.split(' ')[0]})`;
+      categoryOpenAllBtn.className = 'secondary';
+      categoryOpenAllBtn.onclick = () => {
+          const enginesToOpen = categories[categoryName].filter(e => !e.url(query).includes('example.onion') && !e.url(query).includes('.onion/'));
+          enginesToOpen.forEach(engine => {
+              window.open(engine.url(query), '_blank');
+          });
+          if (enginesToOpen.length < categories[categoryName].length) {
+              alert('TOR/Darknet odkazy byly vynechány, protože vyžadují Tor Browser.');
+          }
+      };
+      categoryActions.appendChild(categoryOpenAllBtn);
+
+      section.appendChild(categoryActions);
+      
       resultsContainer.appendChild(section);
     }
 
-    openAllBtn.disabled = false;
+    openSummaryBtn.disabled = false;
   }
 
-  function openAllLinks() {
+  searchBtn.addEventListener('click', () => {
+    renderResults(searchInput.value);
+  });
+
+  openSummaryBtn.addEventListener('click', () => {
     const query = searchInput.value.trim();
-    if (!query) return alert("Zadej hledaný výraz nejprve.");
-
-    let delay = 0;
-    for (const engines of Object.values(categories)) {
-      for (const engine of engines) {
-        setTimeout(() => {
-          window.open(engine.url(query), "_blank", 'noopener,noreferrer');
-        }, delay);
-        delay += 200;
-      }
+    if (!query) {
+      alert('Zadej dotaz');
+      return;
     }
-  }
-
-  // ------------------------------------
-  // LISTENERY A INICIALIZACE
-  // ------------------------------------
-
-  searchBtn.addEventListener('click', renderResults);
+    const summaryHtml = createSummaryHTML(query);
+    const dataUrl = 'data:text/html;charset=utf-8,' + encodeURIComponent(summaryHtml);
+    window.open(dataUrl, '_blank');
+  });
 
   searchInput.addEventListener('keydown', e => {
     if (e.key === 'Enter') {
-      e.preventDefault();
-      renderResults();
+      searchBtn.click();
     }
   });
 
-  openAllBtn.addEventListener('click', openAllLinks);
+  toggleThemeBtn.addEventListener('click', () => {
+    if (document.body.classList.contains('dark')) {
+      document.body.classList.remove('dark');
+      document.body.classList.add('light');
+    } else {
+      document.body.classList.remove('light');
+      document.body.classList.add('dark');
+    }
+  });
 
-  // Spuštění počítadla a prvotní vykreslování
-  updateVisitCount();
-  renderResults();
 })();
 </script>
 </body>
